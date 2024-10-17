@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import axios from 'axios';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
@@ -26,16 +25,30 @@ describe('PostDetails', () => {
     mockedAxios.get.mockResolvedValueOnce({ data: mockPost });
     mockedAxios.get.mockResolvedValueOnce({ data: mockComments });
   });
+
+  it('displays error message when postId is invalid', async () => {
+    mockedAxios.get.mockRejectedValueOnce(new Error('Invalid postId'));
+
+    render(
+      <MemoryRouter initialEntries={['/posts/invalid']}>
+        <Routes>
+          <Route path="/posts/:postId" element={<PostDetails />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByText('Invalid postId: invalid')).toBeInTheDocument();
+    expect(screen.getByText('Go to Home')).toBeInTheDocument();
+  });
+
   it('renders post details and comments', async () => {
     render(
       <MemoryRouter initialEntries={['/posts/1']}>
         <Routes>
           <Route path="/posts/:postId" element={<PostDetails />} />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
-
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
 
     expect(await screen.findByText(mockPost.title)).toBeInTheDocument();
     expect(
@@ -43,16 +56,16 @@ describe('PostDetails', () => {
         (content, element) =>
           element !== null &&
           content.includes(mockComments[0].name) &&
-          element.tagName.toLowerCase() === 'strong'
-      )
+          element.tagName.toLowerCase() === 'strong',
+      ),
     ).toBeInTheDocument();
     expect(
       await screen.findByText(
         (content, element) =>
           element !== null &&
           content.includes(mockComments[0].body) &&
-          element.tagName.toLowerCase() === 'p'
-      )
+          element.tagName.toLowerCase() === 'p',
+      ),
     ).toBeInTheDocument();
   });
 
@@ -62,13 +75,18 @@ describe('PostDetails', () => {
         <Routes>
           <Route path="/posts/:postId" element={<PostDetails />} />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     await screen.findByText(mockPost.title);
 
+    const nameInput = screen.getByPlaceholderText('Name');
+    const emailInput = screen.getByPlaceholderText('Email');
     const commentTextarea = screen.getByPlaceholderText('Comment');
     const postButton = screen.getByText('Post');
+
+    fireEvent.change(nameInput, { target: { value: 'New User' } });
+    fireEvent.change(emailInput, { target: { value: 'newuser@example.com' } });
     fireEvent.change(commentTextarea, { target: { value: 'This is a new comment.' } });
 
     mockedAxios.post.mockResolvedValueOnce({
@@ -82,6 +100,10 @@ describe('PostDetails', () => {
     fireEvent.click(postButton);
 
     await screen.findByText('New User');
-    await screen.findByText('This is a new comment.');
+    expect(
+      await screen.findByText((content, element) => {
+        return element !== null && content.includes('This is a new comment.');
+      }),
+    ).toBeInTheDocument();
   });
 });

@@ -5,26 +5,25 @@ import axios from 'axios';
 import Posts from '../pages/Posts';
 
 jest.mock('axios');
-jest.mock(
-  '../components/PostDropdown',
-  () =>
-    ({
-      posts,
-      onSelect,
-    }: {
-      posts: { id: number; title: string }[];
-      onSelect: (id: number) => void;
-    }) =>
-      (
-        <div data-testid="post-dropdown">
-          {posts.map(post => (
-            <div key={post.id} onClick={() => onSelect(post.id)}>
-              {post.title}
-            </div>
-          ))}
+jest.mock('../components/PostDropdown', () => {
+  const PostDropdown = ({
+    posts,
+    onSelect,
+  }: {
+    posts: { id: number; title: string }[];
+    onSelect: (id: number) => void;
+  }) => (
+    <div data-testid="post-dropdown">
+      {posts.map(post => (
+        <div key={post.id} onClick={() => onSelect(post.id)}>
+          {post.title}
         </div>
-      )
-);
+      ))}
+    </div>
+  );
+  PostDropdown.displayName = 'PostDropdown';
+  return PostDropdown;
+});
 
 describe('Posts Page', () => {
   it('fetches and displays posts', async () => {
@@ -38,7 +37,7 @@ describe('Posts Page', () => {
     render(
       <Router location={history.location} navigator={history}>
         <Posts />
-      </Router>
+      </Router>,
     );
 
     await screen.findByText('Post 1');
@@ -56,7 +55,7 @@ describe('Posts Page', () => {
     render(
       <Router location={history.location} navigator={history}>
         <Posts />
-      </Router>
+      </Router>,
     );
 
     await screen.findByText('Post 1');

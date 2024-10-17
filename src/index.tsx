@@ -10,5 +10,5 @@ root.render(
     <Router basename="/">
       <App />
     </Router>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

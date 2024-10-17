@@ -8,7 +8,7 @@ describe('NotFound Page', () => {
     render(
       <MemoryRouter>
         <NotFound />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     expect(screen.getByText('404: Page Not Found')).toBeInTheDocument();
   });
@@ -17,7 +17,7 @@ describe('NotFound Page', () => {
     render(
       <MemoryRouter>
         <NotFound />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     const linkElement = screen.getByText('Go to Home');
     expect(linkElement).toBeInTheDocument();

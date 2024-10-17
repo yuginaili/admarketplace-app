@@ -16,8 +16,12 @@ const Posts: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await axios.get('https://jsonplaceholder.typicode.com/posts');
-      setPosts(response.data);
+      try {
+        const response = await axios.get('https://jsonplaceholder.typicode.com/posts');
+        setPosts(response.data);
+      } catch (error) {
+        console.error('Error fetching posts:', error);
+      }
     };
 
     fetchData();
@@ -29,7 +33,6 @@ const Posts: React.FC = () => {
 
   return (
     <div className={styles.posts}>
-      <h1>Select a Post</h1>
       <PostDropdown posts={posts} onSelect={handlePostSelect} />
     </div>
   );
