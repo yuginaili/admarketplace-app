@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import PostDropdown from '../components/PostDropdown';
 
+import styles from './Posts.module.css';
+
 interface Post {
   id: number;
   title: string;
@@ -13,10 +15,12 @@ const Posts: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get('https://jsonplaceholder.typicode.com/posts')
-      .then(response => setPosts(response.data))
-      .catch(error => console.error('Error fetching posts', error));
+    const fetchData = async () => {
+      const response = await axios.get('https://jsonplaceholder.typicode.com/posts');
+      setPosts(response.data);
+    };
+
+    fetchData();
   }, []);
 
   const handlePostSelect = (postId: number) => {
@@ -24,7 +28,7 @@ const Posts: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className={styles.posts}>
       <h1>Select a Post</h1>
       <PostDropdown posts={posts} onSelect={handlePostSelect} />
     </div>
